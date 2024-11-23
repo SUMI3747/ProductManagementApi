@@ -1,0 +1,16 @@
+# Ignore Visual Studio files
+.vs/
+*.user
+*.userosscache
+*.suo
+*.db
+
+# Ignore build outputs
+bin/
+obj/
+
+# Ignore packages folder (if using NuGet)
+packages/
+
+# Ignore temporary files (e.g., Windows thumbnail cache)
+Thumbs.db
