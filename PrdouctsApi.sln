@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrdouctsApi", "PrdouctsApi\PrdouctsApi.csproj", "{728387F9-4A7D-4543-8B7C-D9CC9CB5BEBA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{728387F9-4A7D-4543-8B7C-D9CC9CB5BEBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{728387F9-4A7D-4543-8B7C-D9CC9CB5BEBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{728387F9-4A7D-4543-8B7C-D9CC9CB5BEBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{728387F9-4A7D-4543-8B7C-D9CC9CB5BEBA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2D3CB274-2715-4E6C-AD71-D69DDFF4899E}
+	EndGlobalSection
+EndGlobal
