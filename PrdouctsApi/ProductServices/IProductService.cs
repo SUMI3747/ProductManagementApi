@@ -1,4 +1,5 @@
-﻿using PrdouctsApi.Models;
+﻿using PrdouctsApi.Models.DTOs;
+using PrdouctsApi.Models.Entities;
 
 namespace PrdouctsApi.ProductServices
 {
@@ -6,17 +7,17 @@ namespace PrdouctsApi.ProductServices
     {
         Task<ProductRequestResponse> AddProductAsync(string productName, int stockAvailable);
 
-        Task<List<ProductsModel>> GetAllProductsAsync();
+        Task<List<Products>> GetAllProductsAsync();
 
-        Task<ProductsModel> GetProductByIdAsync(string productId);
+        Task<Products> GetProductByIdAsync(int productId);
 
-        Task<bool> DeleteProductByIdAsync(string productId);
+        Task<bool> DeleteProductByIdAsync(int productId);
 
-        Task<ProductRequestResponse> UpdateProductAsync(string id, ProductDto productDto);
+        Task<ProductRequestResponse> UpdateProductAsync(int productId, ProductDto productDto);
 
-        Task<ProductRequestResponse> DecrementStockAsync(string productId, int quantity);
+        Task<ProductRequestResponse> DecrementStockAsync(int productId, int quantity);
 
-        Task<ProductRequestResponse> IncrementStockAsync(string productId, int quantity);
+        Task<ProductRequestResponse> IncrementStockAsync(int productId, int quantity);
 
     }
 }

@@ -1,18 +1,22 @@
 using Microsoft.EntityFrameworkCore;
-using PrdouctsApi.Models;
-using PrdouctsApi.ProductServices;
+using PrdouctsApi.Data;
+using Serilog;
+using ProductInventoryManagerAPI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddScoped<IProductService, ProductService>();
+Log.Logger = new LoggerConfiguration().WriteTo.File("logs/detailedLogs.txt", rollingInterval: RollingInterval.Hour,
+    restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error).CreateLogger();
+builder.Host.UseSerilog();
 
 builder.Services.AddDbContext<ProductDbContext>(options =>
-           options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+           options.UseSqlServer(builder.Configuration.GetConnectionString("cs")));
+
+// Configure services to the container.
+builder.Services.AddProductIntialApiServices();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -24,7 +28,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseExceptionHandler(_ => { });
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PrdouctsApi.Models;
-using PrdouctsApi.ProductServices;
+﻿/*Purpose: API operations for product management | Author: Sumit L | Date: 24th Nov 2024 | For training and learning purposes*/
 
+using Microsoft.AspNetCore.Mvc;
+using PrdouctsApi.Helpers;
+using PrdouctsApi.Models.DTOs;
+using PrdouctsApi.ProductServices;
 
 namespace PrdouctsApi.Controllers
 {
@@ -10,42 +12,40 @@ namespace PrdouctsApi.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly IProductValidationHelper _validationHelper;
+        private readonly IServiceResponseHelper _responseHelper;
 
-        public ProductsController( IProductService productService)
+        public ProductsController(IProductService productService, 
+            IProductValidationHelper validationHelper,
+            IServiceResponseHelper responseHelper)
         {
             _productService = productService;
+            _validationHelper = validationHelper;
+            _responseHelper = responseHelper;
         }
 
-        // POST: api/Products  --> Update Productname and StockQuantity in Body as Request
+        
+        /// <summary>
+        /// Adds a new product to the database.
+        /// </summary>
         [HttpPost]
-        public async Task<IActionResult> AddProducts([FromBody] ProductDto productDto)
-        {
-            if (string.IsNullOrEmpty(productDto.ProductName) || productDto.StockAvailable <= 0)
-            {
-                return BadRequest("Invalid Body Data please Check");
-            }
-            ProductRequestResponse productUpdateStatus = await _productService.AddProductAsync(productDto.ProductName, productDto.StockAvailable);
+        public async Task<ActionResult> AddProduct([FromBody] ProductDto productDto)
+        { 
+            var validationResult = _validationHelper.ValidateProductDto(productDto);
+            if (validationResult != null) return validationResult;
 
-            return Ok(new
-            {
-                Message = productUpdateStatus.statusMessage,
-                Product = new
-                {
-                   productUpdateStatus.productDetails.productID,
-                   productUpdateStatus.productDetails.productName,
-                   productUpdateStatus.productDetails.stockAvailable
-                }
-            });
+            var response = await _productService.AddProductAsync(productDto.ProductName, productDto.StockAvailable);
+            return _responseHelper.HandleServiceResponse(response, "An error occurred while adding the product.");
         }
 
-
-        // GET: api/<ProductsController>
+        /// <summary>
+        /// Retrieves all products.
+        /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<ActionResult> GetAllProducts()
         {
             var products = await _productService.GetAllProductsAsync();
-
-            if (products == null || products.Count == 0)
+            if (products == null || !products.Any())
             {
                 return NotFound("No products found.");
             }
@@ -53,12 +53,13 @@ namespace PrdouctsApi.Controllers
             return Ok(products);
         }
 
-        // GET api/<ProductsController>/{id}
+        /// <summary>
+        /// Retrieves a product by its ID.
+        /// </summary>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProductById(string id)
+        public async Task<ActionResult> GetProductById(int id)
         {
             var product = await _productService.GetProductByIdAsync(id);
-
             if (product == null)
             {
                 return NotFound($"Product with ID {id} not found.");
@@ -67,65 +68,57 @@ namespace PrdouctsApi.Controllers
             return Ok(product);
         }
 
-
-        //DELETE api/<ProductsController>/{id}
+        /// <summary>
+        /// Deletes a product by its ID.
+        /// </summary>
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProductById(string id)
+        public async Task<IActionResult> DeleteProduct(int id)
         {
             var isDeleted = await _productService.DeleteProductByIdAsync(id);
-
-            if (!isDeleted)
-            {
-                return NotFound($"Product with ID {id} not found.");
-            }
-
-            return Ok($"Product with ID {id} deleted successfully.");
+            return isDeleted
+                ? Ok($"Product with ID {id} deleted successfully.")
+                : NotFound($"Product with ID {id} not found.");
         }
 
-        // PUT api/<products>/5
+        /// <summary>
+        /// Updates a product's details.
+        /// </summary>
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProductById(string id, [FromBody] ProductDto productDto)
-        { 
-            var response = await _productService.UpdateProductAsync(id, productDto);
-            return Ok(response);
+        public async Task<ActionResult> UpdateProduct(int id, [FromBody] ProductDto productDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // Return validation errors
+            }
+            var validationResult = _validationHelper.ValidateProductDto(productDto);
+            if (validationResult != null) return validationResult;
 
+            var response = await _productService.UpdateProductAsync(id, productDto);
+            return _responseHelper.HandleServiceResponse(response, $"Product with ID {id} not found.");
         }
 
+        /// <summary>
+        /// Decrements a product's stock quantity.
+        /// </summary>
         [HttpPut("decrement-stock/{id}/{quantity}")]
-        public async Task<IActionResult> DecrementStockAsync(string id, int quantity)
+        public async Task<ActionResult> DecrementStock(int id, int quantity)
         {
-            if (quantity <= 0)
-            {
-                return BadRequest(new { message = "Quantity must be greater than 0." });
-            }
+            if (quantity <= 0) return BadRequest("Quantity must be greater than 0.");
 
             var response = await _productService.DecrementStockAsync(id, quantity);
-
-            if (response.statusMessage == "Product not found")
-            {
-                return NotFound(response);
-            }
-
-            return Ok(response);
+            return _responseHelper.HandleServiceResponse(response, $"Product with ID {id} not found.");
         }
 
-        [HttpPut("Increment-stock/{id}/{quantity}")]
-        public async Task<IActionResult> IncrementStockAsync(string id, int quantity)
+        /// <summary>
+        /// Increments a product's stock quantity.
+        /// </summary>
+        [HttpPut("increment-stock/{id}/{quantity}")]
+        public async Task<ActionResult> IncrementStock(int id, int quantity)
         {
-            if (quantity <= 0)
-            {
-                return BadRequest(new { message = "Quantity must be greater than 0." });
-            }
+            if (quantity <= 0) return BadRequest("Quantity must be greater than 0.");
 
             var response = await _productService.IncrementStockAsync(id, quantity);
-
-            if (response.statusMessage == "Product not found")
-            {
-                return NotFound(response);
-            }
-
-            return Ok(response);
+            return _responseHelper.HandleServiceResponse(response, $"Product with ID {id} not found.");
         }
-
     }
 }

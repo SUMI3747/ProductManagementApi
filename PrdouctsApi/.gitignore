@@ -1,5 +1,5 @@
 # Ignore Visual Studio files
-.vs/
+*.vs/
 *.user
 *.userosscache
 *.suo
